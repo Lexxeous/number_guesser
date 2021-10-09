@@ -6,6 +6,10 @@ namespace number_guesser
 {
     class Program // main class
     {
+
+        static string[] yes_arr = { "Y", "YES" };
+        static string[] no_arr = { "N", "NO" };
+
         static void Main(string[] args) // program entry point
         {
             // Print initial application information. 
@@ -14,39 +18,44 @@ namespace number_guesser
 
             // INITIAL SETUP ----------------------------------------
 
-            Int16 play_again = 0; // declare <play_again> variable and set to "false" by default
-
-            string[] yes_arr = {"Y", "YES"};
-            string[] no_arr = { "N", "NO" };
+            Int16 play_again; // if user wants to play again {0 -> false, 1 -> true, -1 -> error}
+            Int16 change_bounds = 1; // if user wants to change bounds; set to "true" by default {0 -> false, 1 -> true, -1 -> error}
+            bool first_pass = true; // if user has made a pass through the game already; set to "true" by default
 
             Int32 guess_lower_bound = -1;
             Int32 guess_upper_bound = 0;
 
-            do
+            do // restart whole game loop
             {
-                // Let user pick lower bound.
-                guess_lower_bound = choose_bound("lower");
+                if (!first_pass) { // only ask to change bounds after the first game
+                    change_bounds = yes_or_no_question("Would you like to change the bounds?: ", yes_str: "Clearing previous bounds...", no_str: "Keeping current bounds...");
+                }
 
-                // Let the user pick upper bound.
-                guess_upper_bound = choose_bound("upper");
+                if (change_bounds == 1) {
+                    do // <choose_bound> loop
+                    {
+                        // Let user pick lower bound.
+                        guess_lower_bound = choose_bound("lower");
 
-                // Bounds must have correct cardinal order.
-                if(guess_upper_bound <= guess_lower_bound)
-                    print_msg("Upper bound cannot be less than or equal to the lower bound. Choose valid values.", status: "ERROR");
+                        // Let the user pick upper bound.
+                        guess_upper_bound = choose_bound("upper");
 
-            } while (guess_upper_bound <= guess_lower_bound);
+                        // Bounds must have correct cardinal order.
+                        if (guess_upper_bound <= guess_lower_bound)
+                            print_msg("Upper bound cannot be less than or equal to the lower bound. Choose valid values.", status: "ERROR");
 
-            // START GAME LOGIC ----------------------------------------
+                    } while (guess_upper_bound <= guess_lower_bound);
+                }
 
-            do
-            {
+                // START GAME LOGIC ----------------------------------------
+
                 Random random = new Random(); // initialize new instance of Random class
                 int correct_number = random.Next(guess_lower_bound, guess_upper_bound + 1); // generate random correct number ; "Next()" upper bound is non-inclusive
-                int guess = 0; // initialize user's guess outside of guessing bounds
+                int guess = int.MaxValue;
 
                 Console.WriteLine("Guess a number between {0} and {1}, inclusive:", guess_lower_bound, guess_upper_bound);
 
-                while (guess != correct_number)
+                while(true)
                 {
                     string guess_str = Console.ReadLine(); // console inputs are strings by default
                     if (!Int32.TryParse(guess_str, out guess)) {
@@ -57,42 +66,25 @@ namespace number_guesser
 
                     if (guess < guess_lower_bound || guess > guess_upper_bound) {
                         print_msg("Your guess is out of bounds.", status: "error", newline: false);
+                        continue;
                     }
 
                     if (guess != correct_number) {
                         print_msg("Your guess is incorrect. Please try again...", status: "error", newline: false);
-                    } 
-                } // guessed correct number, end of guessing while loop
+                        continue;
+                    }
 
-                if (guess == correct_number) { // confirm that guess is equivalent to the correct random number
-                    print_msg("You guessed the correct number, good job!", status: "success"); // game success
+                    if (guess == correct_number) {
+                        print_msg("You guessed the correct number, good job!", status: "success"); // game success
+                        break;
+                    }
                 }
 
                 // PLAY AGAIN GAME LOGIC ----------------------------------------
 
-                do
-                { 
-                    print_msg("Would you like to play again?: ", newline: false);
-                    string play_input = Console.ReadLine();
-                    string play_str = play_input.ToUpper(new CultureInfo("en-US", false)); // convert string input to all uppercase letters
-                    
-                    if (yes_arr.Contains(play_str))
-                    {
-                        play_again = 1;
-                        print_msg("Restarting the game...", newline: false);
-                        print_msg("Generating a new random number...");
-                    }
-                    else if (no_arr.Contains(play_str))
-                    {
-                        play_again = 0;
-                        print_msg("Exiting the game...");
-                    }
-                    else
-                    {
-                        print_msg("Input is invalid. Please enter (n|no) or (y|yes).", status: "error");
-                        play_again = -1;
-                    }
-                } while (play_again == -1); // error checking for proper <play_again> input
+                play_again = yes_or_no_question("Would you like to play again?: ", yes_str: "Restarting the game...", no_str: "Exiting the game...");
+                
+                first_pass = false; // user has already made it through the game once
 
             }while (play_again == 1); // when user actually wants to play again
 
@@ -104,7 +96,6 @@ namespace number_guesser
 
             // Reset console colors for final console output information
             Console.ResetColor();
-
         }
 
         private static void print_app_info(bool color_reset = true)
@@ -213,6 +204,7 @@ namespace number_guesser
             string b_msg = "";
             string direction = "";
             Int32 val = -1;
+            bool nl;
 
             // Check value of input parameter <bound_str> then set local variables accordingly
             bound_str = bound_str.ToUpper(new CultureInfo("en-US", false)); // convert <bound_str> to all uppercase
@@ -220,11 +212,13 @@ namespace number_guesser
                 b_msg = "upper";
                 direction = "maximum";
                 val = Int32.MaxValue;
+                nl = true;
             }
             else if (bound_str == "LOWER") {
                 b_msg = "lower";
                 direction = "minimum";
                 val =Int32.MinValue;
+                nl = false;
             }
             else {
                 throw new ArgumentException("<bound_str>", "must contain value (\"upper\"|\"UPPER\") or (\"lower\"|\"LOWER\")");
@@ -242,7 +236,7 @@ namespace number_guesser
                 }
                 else { // if the input can be parsed as a 32-bit integer
                     guess_bound = Int32.Parse(guess_bound_str);
-                    print_msg("The " + b_msg + " bound is set to: " + guess_bound, status: "DEFAULT", newline: false);
+                    print_msg("The " + b_msg + " bound is set to: " + guess_bound, status: "DEFAULT", newline: nl);
                     break;
                 }
             }
@@ -261,6 +255,40 @@ namespace number_guesser
             if (!(s is String) || String.IsNullOrEmpty(s)) {
                 throw new ArgumentException("<s>", "must be of type String, cannot be empty, and cannot be of type null.");
             }
+        }
+
+        private static Int16 yes_or_no_question(string question, string yes_str, string no_str)
+        {
+
+            /*
+             * Description:
+             * Input(s):
+             * Output(s):
+            */
+
+            Int16 result;
+
+            do
+            {
+                print_msg(question, newline: false);
+                string input = Console.ReadLine();
+                string caps_str = input.ToUpper(new CultureInfo("en-US", false)); // convert string input to all uppercase letters
+
+                if (yes_arr.Contains(caps_str)) {
+                    result = 1;
+                    print_msg(yes_str);
+                }
+                else if (no_arr.Contains(caps_str)) {
+                    result = 0;
+                    print_msg(no_str);
+                }
+                else {
+                    print_msg("Input is invalid. Please enter (n|no) or (y|yes).", status: "error");
+                    result = -1;
+                }
+            } while (result == -1); // error checking for proper <result> input
+
+            return result;
         }
     }
 }
