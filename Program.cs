@@ -6,7 +6,6 @@ namespace number_guesser
 {
     class Program // main class
     {
-
         static string[] yes_arr = { "Y", "YES" };
         static string[] no_arr = { "N", "NO" };
 
@@ -49,17 +48,16 @@ namespace number_guesser
 
                 // START GAME LOGIC ----------------------------------------
 
-                Random random = new Random(); // initialize new instance of Random class
+                Random random = new Random(); // initialize new instance of <Random> class
                 int correct_number = random.Next(guess_lower_bound, guess_upper_bound + 1); // generate random correct number ; "Next()" upper bound is non-inclusive
-                int guess = int.MaxValue;
+                int guess = int.MaxValue; // initialize <guess> to be wrong and out of bounds
 
                 Console.WriteLine("Guess a number between {0} and {1}, inclusive:", guess_lower_bound, guess_upper_bound);
 
-                while(true)
-                {
+                while(true) {
                     string guess_str = Console.ReadLine(); // console inputs are strings by default
                     if (!Int32.TryParse(guess_str, out guess)) {
-                        print_msg("Please enter a numeric value.", status: "error", newline: false);
+                        print_msg("Please enter a signed, 32-bit, integer value.", status: "error", newline: false);
                         continue;
                     }
                     guess = Int32.Parse(guess_str); // cast guess string datatype into a 32-bit integer datatype
@@ -88,14 +86,11 @@ namespace number_guesser
 
             }while (play_again == 1); // when user actually wants to play again
 
-            // END OF GAME REMARKS ----------------------------------------
+            // END OF GAME ----------------------------------------
 
             print_msg("Thank you so much for playing! Please come again!");
-
-            // END OF GAME LOGIC ----------------------------------------
-
-            // Reset console colors for final console output information
-            Console.ResetColor();
+            
+            Console.ResetColor(); // reset console colors for final console output information
         }
 
         private static void print_app_info(bool color_reset = true)
@@ -189,7 +184,7 @@ namespace number_guesser
         private static Int32 choose_bound(string bound_str)
         {
             /*
-             * Description: Set an upper or lower bound, based on the <bound_str> input parameter.
+             * Description: Set an upper or lower 32-bit integer bound, based on the <bound_str> input parameter.
              * Input(s):
              *   (1) String: <bound_str> - The string value that decides which bound to set. Value must be ("upper"|"UPPER") or ("lower"|"LOWER").
              * Output(s):
@@ -200,11 +195,11 @@ namespace number_guesser
             validate_str_param(bound_str);
 
             // Initialize local variables
-            Int32 guess_bound = -1;
-            string b_msg = "";
-            string direction = "";
-            Int32 val = -1;
-            bool nl;
+            Int32 guess_bound; // value to be returned
+            string b_msg; // "lower" or "upper"
+            string direction; // "minimum" or "maximum"
+            Int32 val; // min or max Int32 value
+            bool nl; // new line temporary variable
 
             // Check value of input parameter <bound_str> then set local variables accordingly
             bound_str = bound_str.ToUpper(new CultureInfo("en-US", false)); // convert <bound_str> to all uppercase
@@ -226,17 +221,17 @@ namespace number_guesser
 
             // Print variable bound choosing message(s) based on the <bound_str>
             print_msg("Choose " + b_msg + " bound for the number guessing game:", status: "DEFAULT", newline: false);
-            print_msg("The " + direction + " value allowed is " + val + ".", status: "DEFAULT", newline: false);
+            print_msg("The " + direction + " value allowed is " + val.ToString("#,#", CultureInfo.InvariantCulture) + ".", status: "DEFAULT", newline: false);
             while (true)
             {
                 string guess_bound_str = Console.ReadLine(); // console inputs are strings by default
                 if (!Int32.TryParse(guess_bound_str, out guess_bound)) { // if the input cannot be parsed as a 32-bit integer
-                    print_msg("Please enter a 32-bit, signed, numeric value.", status: "error", newline: false);
+                    print_msg("Please enter a signed, 32-bit, integer value.", status: "error", newline: false);
                     continue;
                 }
                 else { // if the input can be parsed as a 32-bit integer
                     guess_bound = Int32.Parse(guess_bound_str);
-                    print_msg("The " + b_msg + " bound is set to: " + guess_bound, status: "DEFAULT", newline: nl);
+                    print_msg("The " + b_msg + " bound is set to: " + guess_bound.ToString("#,#", CultureInfo.InvariantCulture), status: "DEFAULT", newline: nl);
                     break;
                 }
             }
@@ -261,15 +256,24 @@ namespace number_guesser
         {
 
             /*
-             * Description:
+             * Description: Ask a yes or no question and return the result.
              * Input(s):
+             *   (1) String: <question> - The question to ask the user.
+             *   (2) String: <yes_str> - The message to print if the user chooses "yes".
+             *   (3) String: <no_str> - The message to print if the user chooses "no".
              * Output(s):
+             *   (1) Int16: <result> - The answer to the question. 1 for "yes" and 0 for "no".
+             *   NOTE: Inside the function, <result> can also hold a value of -1 if the user's input is invalid.
             */
+
+            // Input validation
+            validate_str_param(question);
+            validate_str_param(yes_str);
+            validate_str_param(no_str);
 
             Int16 result;
 
-            do
-            {
+            do {
                 print_msg(question, newline: false);
                 string input = Console.ReadLine();
                 string caps_str = input.ToUpper(new CultureInfo("en-US", false)); // convert string input to all uppercase letters
