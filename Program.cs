@@ -1,4 +1,12 @@
-﻿using System;
+﻿/*
+ * Author: Jonathan Alexander Gibson
+ * Program: NumberGuesser
+ * Version: 1.0.0
+ * License: MIT
+ * Description: Guess a randomly generated number.
+ */
+
+using System;
 using System.Linq;
 using System.Globalization;
 
@@ -128,7 +136,7 @@ namespace number_guesser
              * Output(s): N/A. This is a void function.
             */
 
-            // Do error checking on input parameters
+            // Input validation
             validate_str_param(str);
 
             // The <status> parameter takes precedence for the foreground color over the <f_color> parameter

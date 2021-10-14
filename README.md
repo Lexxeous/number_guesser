@@ -2,6 +2,13 @@
 
 # <img src=".pics/lexx_headshot_clear.png" width="100px"/> Lexxeous's .NET Number Guesser: <img src=".pics/guess_num_logo.png" width="100px"/>
 
+![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=c-sharp&logoColor=white)
+![.Net](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
+[![Generic badge](https://img.shields.io/badge/working-yes-bright_green_.svg)](https://shields.io/)
+
 ### Summary:
 
 This is a **Windows** Console Application written with `C#` and built with **Microsoft's** software development framework, **.NET**.
