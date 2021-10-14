@@ -1,1 +1,4 @@
 _notes.txt
+bin/*
+obj/*
+.vs/*
